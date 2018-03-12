@@ -1,0 +1,50 @@
+{
+  "name": "Webservice Documentation",
+  "version": "0.1.1",
+  "description": "Documentation of the restful webservice",
+  "title": "Webservice Documentation",
+  "url": "http://appserver.di.fc.ul.pt/~aw006/webservice/",
+  "order": [
+    "author",
+    "author_id",
+    "author_id_name",
+    "author_id_citations",
+    "author_id_h_index",
+    "author_id_link",
+    "author_id_institution",
+    "author_id_institution_id",
+    "author_id_publication",
+    "author_id_publication_id",
+    "author_id_co_author",
+    "author_id_co_author_id",
+    "institution",
+    "institution_id",
+    "institution_id_name",
+    "institution_id_link",
+    "institution_id_investigator",
+    "institution_id_investigator_id",
+    "publication",
+    "publication_id",
+    "publication_id_title",
+    "publication_id_abstract",
+    "publication_id_citations",
+    "publication_id_journal",
+    "publication_id_year",
+    "publication_id_doi",
+    "publication_id_link",
+    "publication_id_author",
+    "publication_id_author_id"
+  ],
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  },
+  "sampleUrl": false,
+  "apidoc": "0.2.0",
+  "generator": {
+    "name": "apidoc",
+    "time": "2016-05-14T01:55:35.271Z",
+    "url": "http://apidocjs.com",
+    "version": "0.16.1"
+  }
+}

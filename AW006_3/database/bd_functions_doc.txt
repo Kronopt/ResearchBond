@@ -1,0 +1,731 @@
+#######################
+#  BD_FUNCTIONS  DOC  #
+#######################
+
+Todo o tipo de interacção com a base de dados passa por este ficheiro .php
+
+
+#####################
+#   Como utilizar:  #
+#####################
+
+- Importar o ficheiro nas primeiras linhas do script, assim:
+	require '/home/aw006/database/bd_functions.php';
+- As funções definidas aqui estão agora prontas a ser usadas no script.
+
+
+##########################
+#  Funções disponíveis:  #
+##########################
+
+- drop_tables
+- create_tables
+
+- add_author
+- insert_author_publications
+- insert_author_coauthors
+- insert_author_institutions
+- update_author
+- delete_author
+- delete_author_publications
+- delete_author_coauthors
+- delete_author_institutions
+
+- add_institution
+- insert_institution_investigators
+- update_institution
+- delete_institution
+- delete_institution_investigators
+
+- add_publication
+- insert_publication_authors
+- update_publication
+- delete_publication
+- delete_publication_authors
+
+- select_author
+- select_author_coauthors
+- select_author_institutions
+- select_author_publications
+
+- select_institution
+- select_institution_investigators
+
+- select_publication
+- select_publication_authors
+
+- select_generic_query
+
+--------------------------
+(funções internas, chamadas implicitamente pelas restantes funções)
+--------------------------
+- server_info
+- initiate_connection
+- close_connection
+
+
+#############################
+#  Explicação das funções:  #
+#############################
+
+--------------------------
+PARA OS SELECTS:
+Como o seu resultado é um objecto iterável,
+esta é uma boa maneira de ver todo o conteúdo do select:
+
+$result = select_XXXXX(xx, xx, xx, ...);
+
+while ($line = mysqli_fetch_array($result, MYSQL_ASSOC)) {
+	# fazer cenas com UMA LINHA INTEIRA
+	# ex:
+	print_r($line); # print linha inteira
+	
+	foreach ($line as $key => $column_value) {
+		# fazer cenas com CADA VALOR DA COLUNA DE CADA LINHA
+		# ex:
+		print_r($key); # print nome da coluna
+		print_r($column_value); # print valor da coluna da linha $line
+	}
+}
+--------------------------
+
+- drop_tables
+// Apaga as tabelas especificadas
+//
+// PARÂMETROS:
+// $columns
+//	list[str], tabelas
+
+- create_tables
+// Cria tabelas pré definidas (author, publication, institution, publishes, work, team)
+
+
+- add_author
+// Adiciona 1 autor à base de dados.
+// Só o nome é obrigatório, todos os outros parâmetros podem ser omitidos.
+// Para omitir:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar 'NULL' (citations, hindex, link e photo) ou [] (nas listas)
+// O id do autor é incrementado automaticamente (definido na própria base de dados).
+//
+// PARÂMETROS:
+// $name:
+//	str, Nome do autor
+// $citations:
+//	int, Número de citações do autor
+// $hindex:
+//	int, Valor do h-index do autor
+// $link:
+//	str, Link do autor (Google Scholar)
+// $photo:
+//	str, Link para a fotografia do autor
+// $publishes_list:
+//	list[int], IDs das publicações do autor
+// $team_list:
+//	list[int], IDs dos co-autores do autor
+// $work_list:
+//	list[int], IDs das instituições a que o autor pertence
+//
+// RETURN:
+//	int, ID do autor adicionado
+
+- insert_author_publications
+// Insere valores na tabela publishes para um determinado autor.
+// Usado pelo add_author e update_author
+//
+// PARÂMETROS:
+// $author_id:
+// 	int/str numérico, ID do autor
+// $publication_id_list:
+// 	list[int/str numérico], IDs de publicações do autor
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+- insert_author_coauthors
+// Insere valores na tabela team para um determinado autor.
+// Usado pelo add_author e update_author
+//
+// PARÂMETROS:
+// $author_id:
+// 	int/str numérico, ID do autor
+// $coAuthor_id_list:
+// 	list[int/str numérico], IDs de co-autores do autor
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+- insert_author_institutions
+// Insere valores na tabela work para um determinado autor.
+// Usado pelo add_author e update_author
+//
+// PARÂMETROS:
+// $author_id:
+// 	int/str numérico, ID do autor
+// $institution_id_list:
+// 	list[int/str numérico], IDs de instituições do autor
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+- update_author
+// Actualiza 1 autor já existente na base de dados.
+// Dando o id, é possível actualizar qualquer informação desse autor.
+// Tanto se pode actualizar toda a informação como somente parte dela.
+// O único parâmetro obrigatório é o id (no caso de ser dado somente o id, nada acontece)
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (name, citations, hindex e link) ou [] (nas listas)
+//
+// PARÂMETROS:
+// $author_id:
+// 	int/str numérico, ID do autor
+// $name:
+//	str, Nome do autor
+// $citations:
+//	int, Número de citações do autor
+// $hindex:
+//	int, Valor do h-index do autor
+// $link:
+//	str, Link do autor (Google Scholar)
+// $photo:
+//	str, Link para a fotografia do autor
+// $publishes_list:
+//	list[int], IDs das publicações do autor
+// $team_list:
+//	list[int], IDs dos co-autores do autor
+// $work_list:
+//	list[int], IDs das instituições a que o autor pertence
+
+- delete_author
+// Apaga 1 autor da base de dados e toda a sua informação das tabelas publishes, team e work.
+//
+// PARÂMETROS:
+// $author_id:
+//	int/str numérico, ID do autor
+
+- delete_author_publications
+// Apaga valores da tabela publishes associados a um determinado autor.
+// Usado pelo delete_author
+//
+// PARÂMETROS:
+// $author_id:
+// 	int/str numérico, ID do autor
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+- delete_author_coauthors
+// Apaga valores da tabela team associados a um determinado autor.
+// Usado pelo delete_author
+//
+// PARÂMETROS:
+// $author_id:
+// 	int/str numérico, ID do autor
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+- delete_author_institutions
+// Apaga valores da tabela work associados a um determinado autor.
+// Usado pelo delete_author
+//
+// PARÂMETROS:
+// $author_id:
+// 	int/str numérico, ID do autor
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+
+- add_institution
+// Adiciona 1 instituição à base de dados.
+// Só o nome é obrigatório, todos os outros parâmetros podem ser omitidos.
+// O id da institutição é incrementado automaticamente (definido na própria base de dados).
+// Para omitir:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar 'NULL' (link)
+//
+// PARÂMETROS:
+// $name:
+//	str, Nome da instituição
+// $link:
+//	str, Link da instituição (Google Scholar)
+// $work_list:
+//	list[int], IDs dos autores pertences à instituição
+//
+// RETURN:
+//	int, ID da instituição adicionada
+
+- insert_institution_investigators
+// Insere valores na tabela work para uma determinada instituição.
+// Usado pelo add_institution e update_institution
+//
+// PARÂMETROS:
+// $institution_id:
+// 	int/str numérico, ID da instituição
+// $author_id_list:
+// 	list[int/str numérico], IDs de autores pertencentes à instituição
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+- update_institution
+// Actualiza 1 instituição já existente na base de dados.
+// Dando o id, é possível actualizar qualquer informação dessa instituição.
+// Tanto se pode actualizar toda a informação como somente parte dela.
+// O único parâmetro obrigatório é o id (no caso de ser dado somente o id, nada acontece)
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (name e link)
+//
+// PARÂMETROS:
+// $institution_id:
+// 	int/str numérico, ID da instituição
+// $name:
+//	str, Nome da instituição
+// $link:
+//	str, Link da instituição (Google Scholar)
+// $work_list:
+//	list[int], IDs dos autores pertences à instituição
+
+- delete_institution
+// Apaga 1 instituição da base de dados e toda a sua informação da tabela work.
+//
+// PARÂMETROS:
+// $institution_id:
+//	int/str numérico, ID da instituição
+
+- delete_institution_investigators
+// Apaga valores da tabela work associados a uma determinada instituição.
+// Usado por delete_institution
+//
+// PARÂMETROS:
+// $institution_id:
+// 	int/str numérico, ID da instituição
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+
+- add_publication
+// Adiciona 1 publicação à base de dados.
+// Só o título é obrigatório, todos os outros parâmetros podem ser omitidos.
+// O id da publicação é incrementado automaticamente (definido na própria base de dados).
+// Para omitir:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar 'NULL' (abstract, citations, journal, year, doi, link e doi_percentage) ou [] (nas listas).
+//
+// PARÂMETROS:
+// $title:
+//	str, Título da publicação
+// $abstract:
+//	str, Abstract da publicação
+// $citations:
+//	int, Número de citações da publicação
+// $journal:
+//	str, Jornal no qual a publicação foi feita
+// $year:
+//	int, Ano da publicação
+// $doi:
+//	str, DOI da publicação
+// $link:
+//	str, Link da publicação (Google Scholar)
+// $doi_percentage:
+//	float, Valor de certeza do DOI
+// $publishes_list:
+//	list[int], IDs dos autores da publicação
+//
+// RETURN:
+//	int, ID da publicação adicionada
+
+- insert_publication_authors
+// Insere valores na tabela publishes para uma determinada publicação.
+// Usado por add_publication e update_publication
+//
+// PARÂMETROS:
+// $publication_id:
+// 	int/str numérico, ID da publicação
+// $author_id_list:
+// 	list[int/str numérico], IDs dos autores da publicação
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+- update_publication
+// Actualiza 1 publicação já existente na base de dados.
+// Dando o id, é possível actualizar qualquer informação dessa publicação.
+// Tanto se pode actualizar toda a informação como somente parte dela.
+// O único parâmetro obrigatório é o id (no caso de ser dado somente o id, nada acontece)
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (title, abstract, citations, journal, year, doi, link e doi_percentage) ou [] (nas listas).
+//
+// PARÂMETROS:
+// $publication_id:
+// 	int/str numérico, ID da publicação
+// $title:
+//	str, Título da publicação
+// $abstract:
+//	str, Abstract da publicação
+// $citations:
+//	int, Número de citações da publicação
+// $journal:
+//	str, Revista na qual a publicação foi feita
+// $year:
+//	int, Ano da publicação
+// $doi:
+//	str, DOI da publicação
+// $link:
+//	str, Link da publicação (Google Scholar)
+// $doi_percentage:
+//	float, Valor de certeza do DOI
+// $publishes_list:
+//	list[int], IDs dos autores da publicação
+
+- delete_publication
+// Apaga 1 publicação da base de dados e toda a sua informação da tabela publishes.
+//
+// PARÂMETROS:
+// $publication_id:
+//	int/str numérico, ID da publicação
+
+- delete_publication_authors
+// Apaga valores da tabela publishes associados a uma determinada publicaçao.
+// Usado por delete_publication
+//
+// PARÂMETROS:
+// $publication_id:
+// 	int/str numérico, ID da publicação
+// $error:
+// 	str, Nome da função que chama esta função (para melhor detecção da origem de um erro)
+//	Pode ser omitido
+
+
+- select_author
+/ Select linhas inteiras de todos os autores (não passando nenhum parâmetro) ou
+// especificando as colunas que se quer igualar (id, name, citations, hindex, link e/ou photo)
+// Também permite especificar que colunas se quer, em vez de devolver as linhas completas
+// É possível limitar o número de linhas devolvidas
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (author_id, name, citations, hindex, link e/ou photo) ou [] (select).
+//
+// PARÂMETROS:
+// $select:
+//	list[str], elementos do autor que se quer especificamente (id, name, citations, hindex e/ou link)
+// $author_id:
+// 	int, ID do autor
+// $name:
+//	str, Nome do autor
+// $citations:
+//	int, Número de citações do autor
+// $hindex:
+//	int, Valor do h-index do autor
+// $link:
+//	str, Link do autor (Google Scholar)
+// $photo:
+//	str, Link para a fotografia do autor
+// $top:
+//  int, Número de linhas a devolver
+// $offset:
+//  int, Número de linhas a ignorar no início antes de devolver o top de linhas
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+- select_author_coauthors
+// Select linhas inteiras de todos os co-autores de um autor (não passando nenhum parâmetro além do id do autor) ou
+// especificando as colunas que se quer igualar (id, name, citations, hindex, link e/ou photo)
+// Também permite especificar que colunas se quer, em vez de devolver as linhas completas
+// É possível limitar o número de linhas devolvidas
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (coauthor_id, name, citations, hindex, link e/ou photo) ou [] (select).
+//
+// PARÂMETROS:
+// $author_id
+//	int, ID do autor dos quais se quer os co-autores
+// $select:
+//	list[str], elementos dos co-autores que se quer especificamente (id, name, citations, hindex e/ou link)
+// $coauthor_id:
+// 	int, ID do co-autor
+// $name:
+//	str, Nome do/s co-autor/es
+// $citations:
+//	int, Número de citações do/s co-autor/es
+// $hindex:
+//	int, Valor do h-index do/s co-autor/es
+// $link:
+//	str, Link do co-autor (Google Scholar)
+// $photo:
+//	str, Link para a fotografia do autor
+// $top:
+//  int, Número de linhas a devolver
+// $offset:
+//  int, Número de linhas a ignorar no início antes de devolver o top de linhas
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+- select_author_institutions
+// Select linhas inteiras de todas as instituições de um autor (não passando nenhum parâmetro além do id do autor) ou
+// especificando as colunas que se quer igualar (id, name e/ou link)
+// Também permite especificar que colunas se quer, em vez de devolver as linhas completas
+// É possível limitar o número de linhas devolvidas
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (institution_id, name e/ou link) ou [] (select).
+//
+// PARÂMETROS:
+// $author_id
+//	int, ID do autor dos quais se quer as instituições
+// $select:
+//	list[str], elementos das instituições que se quer especificamente (id, name e/ou link)
+// $institution_id:
+// 	int, ID da/s instituição/ões
+// $name:
+//	str, Nome da/s instituição/ões
+// $link:
+//	str, Link da instituição (Google Scholar)
+// $top:
+//  int, Número de linhas a devolver
+// $offset:
+//  int, Número de linhas a ignorar no início antes de devolver o top de linhas
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+- select_author_publications
+// Select linhas inteiras de todas as publicações de um autor (não passando nenhum parâmetro além do id do autor) ou
+// especificando as colunas que se quer igualar (id, title, abstract, citations, journal, year, doi, link e/ou doi_percentage)
+// Também permite especificar que colunas se quer, em vez de devolver as linhas completas
+// É possível limitar o número de linhas devolvidas
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (publication_id, title, abstract, citations, journal, year, doi, link e/ou doi_percentage) ou [] (select).
+//
+// PARÂMETROS:
+// $author_id
+//	int, ID do autor dos quais se quer as instituições
+// $select:
+//	list[str], elementos das publicações que se quer especificamente (id, title, abstract, citations, journal, year, doi e/ou link)
+// $publication_id:
+// 	int, ID da/s publicação/ões
+// $title:
+//	str, Nome da/s publicação/ões
+// $abstract:
+//	str, Abstract da/s publicação/ões
+// $citations:
+//	int, Número de citações da/s publicação/ões
+// $journal:
+//	str, Revista da/s publicação/ões
+// $year:
+//	int, Ano da/s publicação/ões
+// $doi:
+//	str, DOI da publicação
+// $link:
+//	str, Link da publicação (Google Scholar)
+// $doi_percentage:
+//	float, Valor de certeza do DOI
+// $top:
+//  int, Número de linhas a devolver
+// $offset:
+//  int, Número de linhas a ignorar no início antes de devolver o top de linhas
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+
+- select_institution
+// Select linhas inteiras de todas as instituições (não passando nenhum parâmetro) ou
+// especificando as colunas que se quer igualar (id, name e/ou link)
+// Também permite especificar que colunas se quer, em vez de devolver as linhas completas
+// É possível limitar o número de linhas devolvidas
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (institution_id, name e/ou link) ou [] (select).
+//
+// PARÂMETROS:
+// $select:
+//	list[str], elementos da instituição que se quer especificamente (id, name e/ou link)
+// $institution_id:
+// 	int, ID da instituição
+// $name:
+//	str, Nome da/s instituição/ões
+// $link:
+//	str, Link da instituição (Google Scholar)
+// $top:
+//  int, Número de linhas a devolver
+// $offset:
+//  int, Número de linhas a ignorar no início antes de devolver o top de linhas
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+- select_institution_investigators
+// Select linhas inteiras de todos os investigadores de uma instituição (não passando nenhum parâmetro além do id da instituição) ou
+// especificando as colunas que se quer igualar (id, name, citations, hindex, link e/ou photo)
+// Também permite especificar que colunas se quer, em vez de devolver as linhas completas
+// É possível limitar o número de linhas devolvidas
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (author_id, name, citations, hindex, link e/ou photo) ou [] (select).
+//
+// PARÂMETROS:
+// $institution_id
+//	int, ID da instituição da qual se quer os investigadores
+// $select:
+//	list[str], elementos dos investigadores que se quer especificamente (id, name, citations, hindex e/ou link)
+// $author_id:
+// 	int, ID do autor
+// $name:
+//	str, Nome do investigador
+// $citations:
+//	int, Número de citações do/s investigador/es
+// $hindex:
+//	int, Valor do h-index do/s investigador/es
+// $link:
+//	str, Link do investigador (Google Scholar)
+// $photo:
+//	str, Link para a fotografia do autor
+// $top:
+//  int, Número de linhas a devolver
+// $offset:
+//  int, Número de linhas a ignorar no início antes de devolver o top de linhas
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+
+- select_publication
+// Select linhas inteiras de todas as publicações (não passando nenhum parâmetro) ou
+// especificando as colunas que se quer igualar (id, title, abstract, citations, journal, year, doi, link e/ou doi_percentage)
+// Também permite especificar que colunas se quer, em vez de devolver as linhas completas
+// É possível limitar o número de linhas devolvidas
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (publication_id, title, abstract, citations, journal, year, doi, link e/ou doi_percentage) ou [] (select).
+//
+// PARÂMETROS:
+// $select:
+//	list[str], elementos das publicações que se quer especificamente (id, title, abstract, citations, journal, year, doi e/ou link)
+// $publication_id:
+// 	int, ID da/s publicação/ões
+// $title:
+//	str, Nome da/s publicação/ões
+// $abstract:
+//	str, Abstract da/s publicação/ões
+// $citations:
+//	int, Número de citações da/s publicação/ões
+// $journal:
+//	str, Revista da/s publicação/ões
+// $year:
+//	int, Ano da/s publicação/ões
+// $doi:
+//	str, DOI da publicação
+// $link:
+//	str, Link da publicação (Google Scholar)
+// $doi_percentage:
+//	float, Valor de certeza do DOI
+// $top:
+//  int, Número de linhas a devolver
+// $offset:
+//  int, Número de linhas a ignorar no início antes de devolver o top de linhas
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+- select_publication_authors
+// Select linhas inteiras de todos os autores de uma publicação (não passando nenhum parâmetro além do id da autores) ou
+// especificando as colunas que se quer igualar (id, name, citations, hindex, link e/ou photo)
+// Também permite especificar que colunas se quer, em vez de devolver as linhas completas
+// É possível limitar o número de linhas devolvidas
+// Para omitir parâmetros:
+//	- Caso o parâmetro esteja no final, simplesmente ignorar
+//	- Caso o parâmetro esteja entre outros parâmetros, usar o valor booleano false (author_id, name, citations, hindex, link e/ou photo) ou [] (select).
+//
+// PARÂMETROS:
+// $publication_id
+//	int, ID da publicação da qual se quer os autor
+// $select:
+//	list[str], elementos dos autores que se quer especificamente (id, name, citations, hindex e/ou link)
+// $author_id:
+// 	int, ID do autor
+// $name:
+//	str, Nome do/s autor/es
+// $citations:
+//	int, Número de citações do/s autor/es
+// $hindex:
+//	int, Valor do h-index do/s autor/es
+// $link:
+//	str, Link do autor (Google Scholar)
+// $photo:
+//	str, Link para a fotografia do autor
+// $top:
+//  int, Número de linhas a devolver
+// $offset:
+//  int, Número de linhas a ignorar no início antes de devolver o top de linhas
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+
+- select_generic_query
+// Query genérica
+// Não trata a string para ser reconhecida pelo sql
+// A query pode não resultar se tiver caracteres esquisitos, ou aspas, etc
+//
+// PARÂMETROS:
+// $query
+//	str, query SQL
+//
+// RETURN:
+//	mysqli_result, linhas com os valores pretendidos (iterável, uma espécie de tabela)
+//	(mais info: http://php.net/manual/en/class.mysqli-result.php)
+
+
+- server_info
+// Função que define o nome do servidor, nome de utilizador e password.
+//
+// PARÂMETROS:
+// $what
+//	str, Valor pretendido ('server', 'user' ou 'pass')
+//
+// RETURN:
+//	str, Informação pretendida
+
+- initiate_connection
+// Função de ligação à base de dados.
+// Usada internamente por todas as funções.
+// Não é necessário chamar esta função para usar as demais funções aqui disponíveis
+// Caso esta função seja utilizada, a ligação à base de dados pode ser fechada com a função:
+// close_connection
+//
+// PARÂMETROS:
+// $server_sql
+//	str, URL do servidor sql
+// $user_sql
+//	str, Nome de utilizador
+// $pass_sql
+//	str, Password
+//
+// RETURN:
+//	mysqli, Ligação à base de dados
+
+- close_connection
+// Função de fecho de ligação à base de dados
+// Usada internamente por todas as funções.
+// Usar em caso de chamamento explícito da função initiate_connection
+//
+// PARÂMETROS:
+// $database_connection
+//	mysqli, Objecto de ligação à base de dados
